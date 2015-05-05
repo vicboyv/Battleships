@@ -383,17 +383,18 @@ public class SetupActivity extends Activity {
     }
     public void connectChikka(View v)
     {
+        String smsBody = retrieveBlueprint();
         if(settings.getBoolean("SMSPrompt", false))
         {
             Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
-            sendIntent.putExtra("sms_body", retrieveBlueprint());
+            sendIntent.putExtra("sms_body", smsBody);
             startActivity(sendIntent);
         }
         else
         {
             SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(SecretData.shortcode, null, "Test", null, null);
+            sms.sendTextMessage(SecretData.shortcode, null, smsBody, null, null);
         }
     }
     /*public void receiveChikka(Context context, Intent intent)
@@ -431,10 +432,13 @@ public class SetupActivity extends Activity {
             Log.e("SmsReceiver", "Exception smsReceiver" +e);
 
         }
+        openPlay();
     }*/
     public void openPlay()
     {
         Intent intent = new Intent(this, PlayActivity.class);
+        intent.putExtra("Player Blueprint", retrieveBlueprint());
+        intent.putExtra("Opponent Blueprint", "hmm");
         startActivity(intent);
     }
     public String retrieveBlueprint()
