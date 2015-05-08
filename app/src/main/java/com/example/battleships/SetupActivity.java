@@ -28,6 +28,7 @@ import java.util.LinkedList;
 
 
 public class SetupActivity extends Activity {
+    public static SetupActivity current;
     private Tile tileButton[][] = new Tile[10][10];
     private Button shipButton[] = new Button[5];
     private LinkedList<Button> availableShips = new LinkedList<>();
@@ -42,13 +43,19 @@ public class SetupActivity extends Activity {
     private Tone shipUndoTone = new Tone(8000, 300, 0.2);
     private SharedPreferences settings;
     private boolean soundOn = true;
+    private Button connectButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
+        current = this;
+
         settings = getSharedPreferences("settings", MODE_PRIVATE);
         soundOn = settings.getBoolean("Sound", true);
+
+        this.connectButton = (Button)findViewById(R.id.connectButton);
+        this.connectButton.setEnabled(false);
 
         shipButton[0] = (Button)findViewById(R.id.shipA);
         shipButton[1] = (Button)findViewById(R.id.shipB);
@@ -95,7 +102,8 @@ public class SetupActivity extends Activity {
 
                 tileButton[x][y].setLayoutParams(param);
 
-                tileButton[x][y].setOnClickListener(new View.OnClickListener()
+                tileButton[x][y].setOnClickListener(
+                new View.OnClickListener()
                 {
                     public void onClick(View object)
                     {
@@ -111,6 +119,7 @@ public class SetupActivity extends Activity {
         this.phaseState = "Ship Selection";
 
     }
+
     public int getDP(int size)
     {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, getResources().getDisplayMetrics());
@@ -146,11 +155,19 @@ public class SetupActivity extends Activity {
                     this.availableShips.remove(selectedShip);
                     this.phaseState = "Ship Selection";
                     shipOrientationTone.play(soundOn);
-                    Toast.makeText(getApplicationContext(), retrieveBlueprint(), Toast.LENGTH_LONG).show();
+                    this.selectedTile = null;
+                    this.selectedShip = null;
+                    //Toast.makeText(getApplicationContext(), retrieveBlueprint(), Toast.LENGTH_LONG).show();
+
                 } catch (Exception e)
                 {
                     Toast.makeText(getApplicationContext(), "Invalid placement!", Toast.LENGTH_SHORT).show();
                 }
+                if(availableShips.size() == 0)
+                {
+                    this.connectButton.setEnabled(true);
+                }
+
             }
             else
             {
@@ -175,7 +192,9 @@ public class SetupActivity extends Activity {
                     availableTiles.add(pickedTile);
                 }
                 shipInfo.get(undoShip.selectionButton).occupyingTile = null;
+                this.connectButton.setEnabled(false);
                 shipUndoTone.play(soundOn);
+
             }
         }
     }
@@ -250,7 +269,7 @@ public class SetupActivity extends Activity {
                 cursor += placementHeading(originTile, targetTile);
             }
         }
-        return selectedTiles.toArray(new Tile[0]);
+        return selectedTiles.toArray(new Tile[1]);
     }
     public Tile[] findAvailableTiles(Tile originTile, Tile targetTile, int length) //TODO
     {
@@ -383,13 +402,16 @@ public class SetupActivity extends Activity {
     }
     public void connectChikka(View v)
     {
-        String smsBody = retrieveBlueprint();
-        if(settings.getBoolean("SMSPrompt", false))
+        this.connectButton.setText("WAITING");
+        this.connectButton.setEnabled(false);
+        String smsBody = "CONNECT." + retrieveBlueprint();
+        if(settings.getBoolean("SMSPrompt", true))
         {
-            Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+            /*Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
-            startActivity(sendIntent);
+            startActivity(sendIntent);*/
+            openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
         }
         else
         {
@@ -397,49 +419,47 @@ public class SetupActivity extends Activity {
             sms.sendTextMessage(SecretData.shortcode, null, smsBody, null, null);
         }
     }
-    /*public void receiveChikka(Context context, Intent intent)
+    public void receiveChikka(Intent intent)
     {
-        // Retrieves a map of extended data from the intent.
         final Bundle bundle = intent.getExtras();
-
-        try {
-
-            if (bundle != null) {
-
+        String phoneNumber;
+        String message = null;
+        try
+        {
+            if (bundle != null)
+            {
                 final Object[] pdusObj = (Object[]) bundle.get("pdus");
-
-                for (int i = 0; i < pdusObj.length; i++) {
-
-                    SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
-                    String phoneNumber = currentMessage.getDisplayOriginatingAddress();
-
-                    String senderNum = phoneNumber;
-                    String message = currentMessage.getDisplayMessageBody();
-
-                    Log.i("SmsReceiver", "senderNum: "+ senderNum + "; message: " + message);
-
-
-                    // Show Alert
-                    int duration = Toast.LENGTH_LONG;
-                    Toast toast = Toast.makeText(context,
-                            "senderNum: "+ senderNum + ", message: " + message, duration);
-                    toast.show();
-
-                } // end for loop
-            } // bundle is null
-
-        } catch (Exception e) {
-            Log.e("SmsReceiver", "Exception smsReceiver" +e);
-
+                for(Object sms : pdusObj)
+                {
+                    SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) sms);
+                    phoneNumber = currentMessage.getDisplayOriginatingAddress();
+                    if(phoneNumber.equals(SecretData.shortcode))
+                    {
+                        message = currentMessage.getDisplayMessageBody();
+                    }
+                }
+                String piece[] = message.split(".");
+                if(message != null)
+                {
+                    if(piece[0].equals("CONNECT") && piece.length == 3) //change to UPDATE
+                    {
+                        openPlay(retrieveBlueprint(), piece[1], Integer.parseInt(piece[2]));
+                    }
+                }
+            }
+        } catch (Exception e)
+        {
         }
-        openPlay();
-    }*/
-    public void openPlay()
+    }
+    public void openPlay(String playerBlueprint, String opponentBlueprint, int turn)
     {
         Intent intent = new Intent(this, PlayActivity.class);
-        intent.putExtra("Player Blueprint", retrieveBlueprint());
-        intent.putExtra("Opponent Blueprint", "hmm");
+        intent.putExtra("Player Blueprint", playerBlueprint);
+        intent.putExtra("Opponent Blueprint", opponentBlueprint);
+        intent.putExtra("Assigned Turn", turn);
         startActivity(intent);
+        SetupActivity.current = null;
+        this.finish();
     }
     public String retrieveBlueprint()
     {
@@ -457,7 +477,6 @@ public class SetupActivity extends Activity {
                     blueprint = blueprint + "1";
                 }
             }
-            blueprint = blueprint + "\n";
         }
         return blueprint;
     }

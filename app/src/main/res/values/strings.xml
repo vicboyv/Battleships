@@ -5,4 +5,5 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_setup">Setup</string>
     <string name="title_activity_options">Options</string>
+    <string name="title_activity_play">PlayActivity</string>
 </resources>
