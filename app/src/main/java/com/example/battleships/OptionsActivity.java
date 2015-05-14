@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.ToggleButton;
 
 
 public class OptionsActivity extends ActionBarActivity
@@ -26,9 +27,11 @@ public class OptionsActivity extends ActionBarActivity
         prefEditor = settings.edit();
         Switch soundSwitch = (Switch) findViewById(R.id.soundswitch);
         Switch smsPromptSwitch = (Switch) findViewById(R.id.smspromptswitch);
+        ToggleButton tileSizeToggle = (ToggleButton) findViewById(R.id.tilesizetoggle);
 
         soundSwitch.setChecked(settings.getBoolean("Sound", true));
         smsPromptSwitch.setChecked(settings.getBoolean("SMSPrompt", false));
+        tileSizeToggle.setChecked(settings.getInt("TileSize", 36) == 36);
     }
     public void switchSound(View soundSwitch)
     {
@@ -39,6 +42,19 @@ public class OptionsActivity extends ActionBarActivity
     public void switchSMSPrompt(View SMSPromptSwitch)
     {
         prefEditor.putBoolean("SMSPrompt", !settings.getBoolean("SMSPrompt", true));
+        prefEditor.apply();
+        optionsToggleTone.play(soundOn);
+    }
+    public void toggleTileSize(View tileSizeToggle)
+    {
+        if(((ToggleButton)tileSizeToggle).isChecked())
+        {
+            prefEditor.putInt("TileSize", 36);
+        }
+        else
+        {
+            prefEditor.putInt("TileSize", 24);
+        }
         prefEditor.apply();
         optionsToggleTone.play(soundOn);
     }

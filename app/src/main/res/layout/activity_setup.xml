@@ -4,114 +4,46 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.battleships.SetupActivity">
+    tools:context="com.example.battleships.SetupActivity"
+                android:id="@+id/mainFrame">
 
-    <TextView android:text="Setup Phase" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/phaseLabel"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CONNECT"
-        android:id="@+id/connectButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="connectChikka"/>
-
-    <GridLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="374dp"
-        android:id="@+id/boardLayout"
-        android:layout_weight="0.32"
+        android:layout_height="wrap_content"
+        android:id="@+id/horizontalScrollView"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="250dp">
-
-    </GridLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/shipE"
-        android:layout_above="@+id/phaseLabel"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:width="72dp"
-        android:height="36dp"
-        android:background="#ff888888"
-        android:maxWidth="72dp"
-        android:minHeight="18dp"
-        android:maxHeight="36dp"
-        android:minWidth="36dp"
-        android:layout_marginTop="3dp" />
+        android:layout_above="@+id/shipLabel">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/shipD"
-        android:width="108dp"
-        android:height="36dp"
-        android:background="#ff888888"
-        android:maxWidth="108dp"
-        android:minHeight="18dp"
-        android:maxHeight="36dp"
-        android:minWidth="54dp"
-        android:layout_above="@+id/shipE"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/innerFrame"><![CDATA[
+            >
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/shipC"
-        android:width="108dp"
-        android:height="36dp"
-        android:background="#ff888888"
-        android:maxWidth="108dp"
-        android:minHeight="18dp"
-        android:maxHeight="36dp"
-        android:minWidth="54dp"
-        android:layout_above="@+id/shipD"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/shipB"
-        android:width="144dp"
-        android:height="36dp"
-        android:background="#ff888888"
-        android:maxWidth="144dp"
-        android:minHeight="18dp"
-        android:maxHeight="36dp"
-        android:minWidth="72dp"
-        android:layout_above="@+id/shipC"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/shipA"
-        android:width="180dp"
-        android:height="36dp"
-        android:background="#ff888888"
-        android:maxWidth="180dp"
-        android:minHeight="18dp"
-        android:maxHeight="36dp"
-        android:minWidth="90dp"
-        android:layout_above="@+id/shipB"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="3dp" />
+
+
+            ]]>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/scrollView">
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/boardLayout"
+                    android:orientation="vertical"
+                    android:nestedScrollingEnabled="false">
+
+                </GridLayout>
+            </ScrollView>
+        </RelativeLayout>
+    </HorizontalScrollView>
 
     <TextView
         android:layout_width="wrap_content"
@@ -119,17 +51,81 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Ships"
         android:id="@+id/shipLabel"
-        android:layout_above="@+id/shipA"
+        android:layout_above="@+id/shipList"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"/>
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="false"
+        android:id="@+id/shipList"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/shipA"
+            android:width="180dp"
+            android:background="#ff888888"
+            android:layout_marginTop="3dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/shipB"
+            android:width="144dp"
+            android:background="#ff888888"
+            android:layout_marginTop="3dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/shipC"
+            android:width="108dp"
+            android:background="#ff888888"
+
+            android:layout_marginTop="3dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/shipD"
+            android:width="108dp"
+            android:background="#ff888888"
+            android:layout_marginTop="3dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:id="@+id/shipE"
+            android:width="72dp"
+            android:background="#ff888888"
+            android:layout_marginTop="3dp"
+            />
+    </LinearLayout>
+
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Placement:\n[1] Select a ship\n[2] Select a tile\n[3] Select another tile for\norientation\n[UNDO] Select the ship in\nthe board"
-        android:id="@+id/setupInstructions"
-        android:layout_above="@+id/connectButton"
-        android:layout_alignRight="@+id/boardLayout"
-        android:layout_alignEnd="@+id/boardLayout" />
+        android:text="CONNECT"
+        android:id="@+id/connectButton"
+        android:onClick="connectChikka"
+        android:layout_above="@+id/phaseLabel"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
+    <TextView android:text="Setup Phase" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/phaseLabel"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentRight="true"
+              android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

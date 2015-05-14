@@ -58,6 +58,7 @@ public class PlayActivity extends Activity
 
         opponentBoard.setColumnCount(10);
         opponentBoard.setRowCount(10);
+        int tileSize = settings.getInt("TileSize", 36);
         for(int y = 0; y < 10; y++)
         {
             for(int x = 0; x < 10; x++)
@@ -65,10 +66,10 @@ public class PlayActivity extends Activity
                 opponentTile[x][y] = new Tile(this, x, y);
 
                 GridLayout.LayoutParams param = new GridLayout.LayoutParams();
-                param.height = getDP(36);
-                param.width = getDP(36);
-                param.rightMargin = 3;
-                param.topMargin = 3;
+                param.height = getDP(tileSize);
+                param.width = getDP(tileSize);
+                param.rightMargin = getDP(tileSize / 12);
+                param.topMargin = getDP(tileSize / 12);
                 param.setGravity(Gravity.CENTER);
                 param.columnSpec = GridLayout.spec(x);
                 param.rowSpec = GridLayout.spec(y);
@@ -103,10 +104,10 @@ public class PlayActivity extends Activity
                 playerTile[x][y] = new Tile(this, x, y);
 
                 GridLayout.LayoutParams param = new GridLayout.LayoutParams();
-                param.height = getDP(24);
-                param.width = getDP(24);
-                param.rightMargin = 2;
-                param.topMargin = 2;
+                param.height = (getDP(tileSize) / 3) * 2;
+                param.width = (getDP(tileSize) / 3) * 2;
+                param.rightMargin = ((getDP(tileSize) / 3) * 2) / 12;
+                param.topMargin = ((getDP(tileSize) / 3) * 2) / 12;
                 param.setGravity(Gravity.CENTER);
                 param.columnSpec = GridLayout.spec(x);
                 param.rowSpec = GridLayout.spec(y);

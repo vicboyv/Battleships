@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -85,6 +86,7 @@ public class SetupActivity extends Activity {
 
         board.setColumnCount(10);
         board.setRowCount(10);
+        int tileSize = settings.getInt("TileSize", 36);
         for(int y = 0; y < 10; y++)
         {
             for(int x = 0; x < 10; x++)
@@ -92,10 +94,10 @@ public class SetupActivity extends Activity {
                 tileButton[x][y] = new Tile(this, x, y);
 
                 GridLayout.LayoutParams param = new GridLayout.LayoutParams();
-                param.height = getDP(36);
-                param.width = getDP(36);
-                param.rightMargin = 3;
-                param.topMargin = 3;
+                param.height = getDP(tileSize);
+                param.width = getDP(tileSize);
+                param.rightMargin = getDP(tileSize / 12);
+                param.topMargin = getDP(tileSize / 12);
                 param.setGravity(Gravity.CENTER);
                 param.columnSpec = GridLayout.spec(x);
                 param.rowSpec = GridLayout.spec(y);
@@ -114,6 +116,15 @@ public class SetupActivity extends Activity {
                 availableTiles.add(tileButton[x][y]);
                 board.addView(tileButton[x][y]);
             }
+        }
+        for(Button pickedButton : shipButton)
+        {
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams((getDP(tileSize) * 5), ((getDP(tileSize) + 3) * 5));
+            param.height = getDP(tileSize);
+            param.width = getDP(tileSize) * shipInfo.get(pickedButton).length;
+            param.rightMargin = getDP(tileSize / 12);
+            param.topMargin = getDP(tileSize / 12);
+            pickedButton.setLayoutParams(param);
         }
 
         this.phaseState = "Ship Selection";
@@ -407,11 +418,11 @@ public class SetupActivity extends Activity {
         String smsBody = "CONNECT." + retrieveBlueprint();
         if(settings.getBoolean("SMSPrompt", true))
         {
-            Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+            /*Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
-            startActivity(sendIntent);
-            //openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
+            startActivity(sendIntent);*/
+            openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
         }
         else
         {

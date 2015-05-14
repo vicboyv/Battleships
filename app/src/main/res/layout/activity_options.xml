@@ -29,4 +29,19 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="switchSound"/>
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tile Size"
+        android:id="@+id/tilesizetoggle"
+        android:layout_below="@+id/smspromptswitch"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/smspromptswitch"
+        android:layout_alignEnd="@+id/smspromptswitch"
+        android:textOff="Smaller Tiles"
+        android:textOn="Larger Tiles"
+        android:onClick="toggleTileSize"/>
+
 </RelativeLayout>
