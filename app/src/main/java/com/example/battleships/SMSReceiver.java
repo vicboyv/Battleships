@@ -17,7 +17,7 @@ public class SMSReceiver extends BroadcastReceiver
         {
             SetupActivity.current.receiveChikka(intent);
         }
-        else if(SetupActivity.current != null)
+        else
         {
             PlayActivity.current.receiveChikka(intent);
         }

@@ -225,7 +225,7 @@ public class PlayActivity extends Activity
                 String piece[] = message.split(".");
                 if(message != null)
                 {
-                    if(piece[0].equals("UPDATE") && piece.length == 3)
+                    if(piece[0].equals("UPDATE"))
                     {
                         //Integer.parseInt(piece[2])) (TURNS)
                         updatePlayer(piece[1]);

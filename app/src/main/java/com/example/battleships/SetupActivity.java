@@ -407,11 +407,11 @@ public class SetupActivity extends Activity {
         String smsBody = "CONNECT." + retrieveBlueprint();
         if(settings.getBoolean("SMSPrompt", true))
         {
-            /*Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+            Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
-            startActivity(sendIntent);*/
-            openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
+            startActivity(sendIntent);
+            //openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
         }
         else
         {
@@ -441,7 +441,7 @@ public class SetupActivity extends Activity {
                 String piece[] = message.split(".");
                 if(message != null)
                 {
-                    if(piece[0].equals("CONNECT") && piece.length == 3) //change to UPDATE
+                    if(piece[0].equals("CONNECT")) //change to UPDATE
                     {
                         openPlay(retrieveBlueprint(), piece[1], Integer.parseInt(piece[2]));
                     }
