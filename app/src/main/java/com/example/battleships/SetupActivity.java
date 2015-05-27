@@ -127,7 +127,6 @@ public class SetupActivity extends Activity {
         }
 
         this.phaseState = "Ship Selection";
-
     }
 
     public int getDP(int size)
@@ -160,16 +159,23 @@ public class SetupActivity extends Activity {
             {
                 try
                 {
-                    occupyTiles(findAvailableTiles(this.selectedTile, tile, shipInfo.get(selectedShip).length));
+                    Tile[] selectedTiles = selectTiles(this.selectedTile, tile, shipInfo.get(selectedShip).length);
+                    if(tilesAvailable(selectedTiles, shipInfo.get(selectedShip).length))
+                    {
+                        occupyTiles(selectedTiles);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                     this.selectedShip.setBackgroundColor(Color.LTGRAY);
                     this.availableShips.remove(selectedShip);
                     this.phaseState = "Ship Selection";
                     shipOrientationTone.play(soundOn);
                     this.selectedTile = null;
                     this.selectedShip = null;
-                    //Toast.makeText(getApplicationContext(), retrieveBlueprint(), Toast.LENGTH_LONG).show();
-
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Toast.makeText(getApplicationContext(), "Invalid placement!", Toast.LENGTH_SHORT).show();
                 }
@@ -258,7 +264,7 @@ public class SetupActivity extends Activity {
         }
         occupiedTiles[0].occupyingShip.occupyingTile = occupiedTiles;
     }
-    public Tile[] selectTrialTiles(Tile originTile, Tile targetTile, int length) //Needs to be smarter
+    public Tile[] selectTiles(Tile originTile, Tile targetTile, int length)
     {
         LinkedList<Tile> selectedTiles = new LinkedList<>();
         if(!verticalPlacementOrientation(originTile, targetTile))
@@ -281,53 +287,10 @@ public class SetupActivity extends Activity {
         }
         return selectedTiles.toArray(new Tile[1]);
     }
-    public Tile[] findAvailableTiles(Tile originTile, Tile targetTile, int length) //TODO
+    public boolean tilesAvailable(Tile[] trialTiles, int shipLength)
     {
         boolean tilesAvailable = true;
-        Tile[] trialTiles;
-        int tryCount = 0;
-        do
-        {
-            tryCount++;
-            trialTiles = selectTrialTiles(originTile, targetTile, length);
-            if(trialTiles.length != length)
-            {
-                tilesAvailable = false;
-            }
-            for (Tile pickedTile : trialTiles)
-            {
-                if (pickedTile.occupyingShip != null)
-                {
-                    tilesAvailable = false;
-                }
-            }
-
-            int originX = Math.abs((originTile.x + (trialHeadingState(tryCount) * trialOrientation(tryCount, true))) % 10);
-            int originY = Math.abs((originTile.y + (trialHeadingState(tryCount) * trialOrientation(tryCount, false))) % 10);
-            originTile = tileButton[originX][originY];
-            originTile.setBackgroundColor(Color.GREEN);
-
-            int targetX = Math.abs((targetTile.x + (trialHeadingState(tryCount) * trialOrientation(tryCount, true))) % 10);
-            int targetY = Math.abs((targetTile.y + (trialHeadingState(tryCount) * trialOrientation(tryCount, false))) % 10);
-            targetTile = tileButton[targetX][targetY];
-            targetTile.setBackgroundColor(Color.RED); //debugging code
-            try
-            {
-                //Thread.sleep(1000);
-            }
-            catch(Exception e)
-            {
-
-            }
-
-            originTile.setBackgroundColor(Color.BLUE);
-            targetTile.setBackgroundColor(Color.BLUE);
-        }
-        while(!tilesAvailable && tryCount < 50);
-        return trialTiles;
-        /*Tile[] trialTiles = selectTrialTiles(originTile, targetTile, length);
-        boolean tilesAvailable = true;
-        if(trialTiles.length != length)
+        if(trialTiles.length != shipLength)
         {
             tilesAvailable = false;
         }
@@ -338,66 +301,7 @@ public class SetupActivity extends Activity {
                 tilesAvailable = false;
             }
         }
-        if(tilesAvailable)
-        {
-            return trialTiles;
-        }
-        else
-        {
-            return null;
-        }*/
-
-    }
-
-    public int trialOrientation(int count, boolean isX)
-    {
-        int state = 1;
-        int stateSize = 1;
-        int stateInstances = 1;
-        for(int tries = 1; tries < count; tries++)
-        {
-            if(stateSize == stateInstances)
-            {
-                state = (state + 1) % 2;
-                if(state == 1)
-                {
-                    stateSize++;
-                }
-                stateInstances = 0;
-            }
-
-            stateInstances++;
-        }
-        if(isX)
-        {
-            return state;
-        }
-        else
-        {
-            return (state + 1) % 2;
-        }
-    }
-
-    public int trialHeadingState(int count) //TODO
-    {
-        int stateCap = 1;
-        int stateChangeCount = 1;
-        for(int tries = 1; tries <= count; tries++)
-        {
-            if(stateCap == tries)
-            {
-                stateCap = stateCap + (2 * stateChangeCount);
-                stateChangeCount++;
-            }
-        }
-        if(stateChangeCount % 2 == 0)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
+        return tilesAvailable;
     }
     public int placementHeading(Tile originTile, Tile targetTile)
     {
@@ -422,7 +326,6 @@ public class SetupActivity extends Activity {
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
             startActivity(sendIntent);
-            //openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
         }
         else
         {
@@ -432,7 +335,10 @@ public class SetupActivity extends Activity {
     public void receiveChikka(Intent intent)
     {
         final Bundle bundle = intent.getExtras();
-        String phoneNumber;
+
+        Toast.makeText(getApplicationContext(), "MESSAGE RECEIVED", Toast.LENGTH_LONG).show();
+
+        String phoneNumber = null;
         String message = null;
         try
         {
@@ -443,15 +349,21 @@ public class SetupActivity extends Activity {
                 {
                     SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) sms);
                     phoneNumber = currentMessage.getDisplayOriginatingAddress();
+                    Toast.makeText(getApplicationContext(), phoneNumber, Toast.LENGTH_LONG).show();
                     if(phoneNumber.equals(SecretData.shortcode))
                     {
-                        message = currentMessage.getDisplayMessageBody();
+                        message = currentMessage.getDisplayMessageBody() + "END";
+
                     }
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 }
                 if(message != null)
                 {
-                    String piece[] = message.split(".");
-                    if(piece[0].equals("CONNECT")) //change to UPDATE
+                    String piece[] = message.split("\\.");
+                    Toast.makeText(getApplicationContext(), piece[0], Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), piece[1], Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), piece[2], Toast.LENGTH_LONG).show();
+                    if(piece[0].equals("UPDATE"))
                     {
                         openPlay(retrieveBlueprint(), piece[1], Integer.parseInt(piece[2]));
                     }
