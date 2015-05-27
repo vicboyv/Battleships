@@ -31,6 +31,8 @@ public class PlayActivity extends Activity
     private Button fireButton;
     private String phase;
     private int playerTurn = 0;
+    private Tone tileTargetTone = new Tone(8000, 700, 0.1);
+    private Tone fireTargetTone = new Tone(8000, 450, 0.5);
     public static PlayActivity current;
 
     @Override
@@ -127,6 +129,7 @@ public class PlayActivity extends Activity
             this.selectedTile = tile;
             tile.setBackgroundColor(Color.YELLOW);
             this.fireButton.setEnabled(true);
+            this.tileTargetTone.play(soundOn);
         }
     }
     public void fireTile(View v)
@@ -135,6 +138,7 @@ public class PlayActivity extends Activity
         this.selectableTiles.remove(this.selectedTile);
         this.opponentBlueprint = refreshBlueprint(opponentTile, opponentBlueprint);
         this.playerTurn = Math.max(0, this.playerTurn) + 1;
+        this.fireTargetTone.play(soundOn);
         sendAttack();
     }
     public String refreshBlueprint(Tile[][] boardTile, String blueprint)
@@ -223,9 +227,9 @@ public class PlayActivity extends Activity
                         message = currentMessage.getDisplayMessageBody();
                     }
                 }
-                String piece[] = message.split(".");
                 if(message != null)
                 {
+                    String piece[] = message.split(".");
                     if(piece[0].equals("UPDATE"))
                     {
                         //Integer.parseInt(piece[2])) (TURNS)

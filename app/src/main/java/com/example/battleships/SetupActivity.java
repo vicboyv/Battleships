@@ -6,7 +6,6 @@ package com.example.battleships;
 //Tap origin to cancel placement
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -50,7 +49,7 @@ public class SetupActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
-        current = this;
+        SetupActivity.current = this;
 
         settings = getSharedPreferences("settings", MODE_PRIVATE);
         soundOn = settings.getBoolean("Sound", true);
@@ -411,6 +410,7 @@ public class SetupActivity extends Activity {
             return Math.max(-1, Math.min(targetTile.x - originTile.x, 1));
         }
     }
+
     public void connectChikka(View v)
     {
         this.connectButton.setText("WAITING");
@@ -418,16 +418,15 @@ public class SetupActivity extends Activity {
         String smsBody = "CONNECT." + retrieveBlueprint();
         if(settings.getBoolean("SMSPrompt", true))
         {
-            /*Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+            Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
-            startActivity(sendIntent);*/
-            openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
+            startActivity(sendIntent);
+            //openPlay(retrieveBlueprint(), retrieveBlueprint(), -1);
         }
         else
         {
-            SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(SecretData.shortcode, null, smsBody, null, null);
+            SmsManager.getDefault().sendTextMessage(SecretData.shortcode, null, smsBody, null, null);
         }
     }
     public void receiveChikka(Intent intent)
@@ -449,16 +448,17 @@ public class SetupActivity extends Activity {
                         message = currentMessage.getDisplayMessageBody();
                     }
                 }
-                String piece[] = message.split(".");
                 if(message != null)
                 {
+                    String piece[] = message.split(".");
                     if(piece[0].equals("CONNECT")) //change to UPDATE
                     {
                         openPlay(retrieveBlueprint(), piece[1], Integer.parseInt(piece[2]));
                     }
                 }
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
         }
     }

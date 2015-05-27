@@ -16,8 +16,7 @@
         android:text="Enemy Board"
         android:id="@+id/opponentBoardLabel"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_centerHorizontal="true"/>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -73,12 +72,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/horizontalScrollView2"
-        android:layout_alignParentBottom="true"
         android:layout_below="@+id/opponentBoardLabel"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_toLeftOf="@+id/fireButton"
-        >
+        android:fillViewport="false"
+        android:layout_alignParentBottom="true">
 
         <RelativeLayout
             android:layout_width="wrap_content"

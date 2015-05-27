@@ -6,6 +6,7 @@ import android.content.Intent;
 
 public class SMSReceiver extends BroadcastReceiver
 {
+
     public SMSReceiver()
     {
     }
@@ -13,13 +14,15 @@ public class SMSReceiver extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        if(SetupActivity.current != null)
+        SetupActivity.current.receiveChikka(intent);
+    }
+}
+
+/*if(SetupActivity.current != null)
         {
             SetupActivity.current.receiveChikka(intent);
         }
         else
         {
             PlayActivity.current.receiveChikka(intent);
-        }
-    }
-}
+  }*/
