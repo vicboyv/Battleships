@@ -111,4 +111,14 @@
         </RelativeLayout>
     </HorizontalScrollView>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forfeit"
+        android:id="@+id/forfeitButton"
+        android:layout_alignTop="@+id/horizontalScrollView2"
+        android:layout_alignRight="@+id/hScrollA"
+        android:layout_alignEnd="@+id/hScrollA"
+        android:onClick="forfeitMatch"/>
+
 </RelativeLayout>

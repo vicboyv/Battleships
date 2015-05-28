@@ -23,7 +23,7 @@ public class Tile extends Button
         this.state = (char)((int)this.state + 2);
         switch(this.state)
         {
-            case '2' : this.setBackgroundColor(Color.parseColor("navy")); break;
+            case '2' : this.setBackgroundColor(Color.CYAN); break;
             case '3' : this.setBackgroundColor(Color.RED); break;
             default: this.setBackgroundColor(Color.BLACK); break;
         }

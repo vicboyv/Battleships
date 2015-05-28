@@ -335,10 +335,7 @@ public class SetupActivity extends Activity {
     public void receiveChikka(Intent intent)
     {
         final Bundle bundle = intent.getExtras();
-
-        Toast.makeText(getApplicationContext(), "MESSAGE RECEIVED", Toast.LENGTH_LONG).show();
-
-        String phoneNumber = null;
+        String phoneNumber;
         String message = null;
         try
         {
@@ -349,20 +346,15 @@ public class SetupActivity extends Activity {
                 {
                     SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) sms);
                     phoneNumber = currentMessage.getDisplayOriginatingAddress();
-                    Toast.makeText(getApplicationContext(), phoneNumber, Toast.LENGTH_LONG).show();
                     if(phoneNumber.equals(SecretData.shortcode))
                     {
                         message = currentMessage.getDisplayMessageBody() + "END";
 
                     }
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 }
                 if(message != null)
                 {
                     String piece[] = message.split("\\.");
-                    Toast.makeText(getApplicationContext(), piece[0], Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), piece[1], Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), piece[2], Toast.LENGTH_LONG).show();
                     if(piece[0].equals("UPDATE"))
                     {
                         openPlay(retrieveBlueprint(), piece[1], Integer.parseInt(piece[2]));
@@ -372,6 +364,7 @@ public class SetupActivity extends Activity {
         }
         catch (Exception e)
         {
+            Toast.makeText(getApplicationContext(), "Invalid placement!", Toast.LENGTH_SHORT).show();
         }
     }
     public void openPlay(String playerBlueprint, String opponentBlueprint, int turn)

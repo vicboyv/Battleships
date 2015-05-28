@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -23,7 +24,6 @@ public class PlayActivity extends Activity
     private Tile opponentTile[][] = new Tile[10][10];
     private Tile playerTile[][] = new Tile[10][10];
     private LinkedList<Tile> selectableTiles = new LinkedList<>();
-    private String playerBlueprint = "";
     private String opponentBlueprint = "";
     private Tile selectedTile;
     private SharedPreferences settings;
@@ -43,21 +43,20 @@ public class PlayActivity extends Activity
 
         PlayActivity.current = this;
 
-        final Bundle bundle = getIntent().getExtras();
-
         settings = getSharedPreferences("settings", MODE_PRIVATE);
         soundOn = settings.getBoolean("Sound", true);
+
+        final Bundle bundle = getIntent().getExtras();
+
+        String playerBlueprint = bundle.getString("Player Blueprint", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        opponentBlueprint = bundle.getString("Opponent Blueprint", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        playerTurn = bundle.getInt("Assigned Turn", 0);
 
         fireButton = (Button)findViewById(R.id.fireButton);
         fireButton.setEnabled(false);
 
-        playerBlueprint = bundle.getString("Player Blueprint", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-        opponentBlueprint = bundle.getString("Opponent Blueprint", "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-        playerTurn = bundle.getInt("Assigned Turn", 0);
-
         GridLayout opponentBoard = (GridLayout)findViewById(R.id.opponentBoardLayout);
         opponentBoard.removeAllViews();
-
         opponentBoard.setColumnCount(10);
         opponentBoard.setRowCount(10);
         int tileSize = settings.getInt("TileSize", 36);
@@ -93,10 +92,10 @@ public class PlayActivity extends Activity
             }
 
         }
-        refreshBoardViewer(opponentTile, opponentBlueprint, true);
+        refreshBoardViewer(opponentTile, opponentBlueprint, false);
+
         GridLayout playerBoard = (GridLayout)findViewById(R.id.playerBoardLayout);
         playerBoard.removeAllViews();
-
         playerBoard.setColumnCount(10);
         playerBoard.setRowCount(10);
         for(int y = 0; y < 10; y++)
@@ -120,6 +119,53 @@ public class PlayActivity extends Activity
             }
         }
         refreshBoardViewer(playerTile, playerBlueprint, true);
+
+        if(this.playerTurn == -1)
+        {
+            waitPhase();
+        }
+        else
+        {
+            attackPhase();
+        }
+
+    }
+    public void waitPhase()
+    {
+        this.phase = "Waiting";
+        for(Tile pickedTile : this.selectableTiles)
+        {
+            pickedTile.setEnabled(false);
+        }
+        fireButton.setText("WAITING");
+        fireButton.setEnabled(false);
+    }
+    public void attackPhase()
+    {
+        if(lostAllShips(this.playerTile))
+        {
+            this.phase = "Victorious";
+            fireButton.setText("VICTORY!");
+            fireButton.setEnabled(false);
+            refreshBoardViewer(opponentTile, opponentBlueprint, true);
+        }
+        else if(lostAllShips(this.opponentTile))
+        {
+            this.phase = "Defeated";
+            fireButton.setText("DEFEAT!");
+            fireButton.setEnabled(false);
+            refreshBoardViewer(opponentTile, opponentBlueprint, true);
+        }
+        else
+        {
+            this.phase = "Attacking";
+            for (Tile pickedTile : this.selectableTiles)
+            {
+                pickedTile.setEnabled(true);
+            }
+            fireButton.setText("FIRE");
+            fireButton.setEnabled(false);
+        }
     }
     public void targetTile(Tile tile)
     {
@@ -139,7 +185,16 @@ public class PlayActivity extends Activity
         this.opponentBlueprint = refreshBlueprint(opponentTile, opponentBlueprint);
         this.playerTurn = Math.max(0, this.playerTurn) + 1;
         this.fireTargetTone.play(soundOn);
-        sendAttack();
+        this.sendAction(false);
+        this.waitPhase();
+    }
+    public void forfeitMatch(View v)
+    {
+        this.sendAction(true);
+        this.phase = "Defeated";
+        fireButton.setText("DEFEAT!");
+        fireButton.setEnabled(false);
+        refreshBoardViewer(opponentTile, opponentBlueprint, true);
     }
     public String refreshBlueprint(Tile[][] boardTile, String blueprint)
     {
@@ -172,7 +227,7 @@ public class PlayActivity extends Activity
                                     tile.setBackgroundColor(Color.BLUE);
                                 }
                                 break;
-                    case '2' : tile.setBackgroundColor(Color.parseColor("navy")); break;
+                    case '2' : tile.setBackgroundColor(Color.CYAN); break;
                     case '3' : tile.setBackgroundColor(Color.RED); break;
                     default: tile.setBackgroundColor(Color.BLACK); break;
                 }
@@ -184,24 +239,26 @@ public class PlayActivity extends Activity
     {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, getResources().getDisplayMetrics());
     }
-    public void sendAttack()
+    public void sendAction(boolean forfeit)
     {
-        for(Tile pickedTile : selectableTiles)
+        String smsBody;
+        if(!forfeit)
         {
-            pickedTile.setEnabled(false);
+            smsBody = "ACTION." + opponentBlueprint + "." + playerTurn;
+
         }
-
-        fireButton.setText("WAITING");
-        fireButton.setEnabled(false);
-
-        String smsBody = "ACTION." + opponentBlueprint + "." + playerTurn;
+        else
+        {
+            smsBody = "FORFEIT";
+        }
         if (settings.getBoolean("SMSPrompt", true))
         {
-            /*Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+            Intent sendIntent = new Intent(Intent.ACTION_VIEW);
             sendIntent.setData(Uri.parse("smsto: " + SecretData.shortcode));
             sendIntent.putExtra("sms_body", smsBody);
-            startActivity(sendIntent);*/
-        } else
+            startActivity(sendIntent);
+        }
+        else
         {
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(SecretData.shortcode, null, smsBody, null, null);
@@ -229,29 +286,50 @@ public class PlayActivity extends Activity
                 }
                 if(message != null)
                 {
-                    String piece[] = message.split(".");
+                    String piece[] = message.split("\\.");
                     if(piece[0].equals("UPDATE"))
                     {
                         //Integer.parseInt(piece[2])) (TURNS)
-                        updatePlayer(piece[1]);
+                        this.updatePlayer(piece[1]);
+                        this.attackPhase();
+                    }
+                    else if(piece[0].equals("FORFEIT"))
+                    {
+                        this.phase = "Victorious";
+                        fireButton.setText("VICTORY!");
+                        fireButton.setEnabled(false);
+                        refreshBoardViewer(opponentTile, opponentBlueprint, true);
+                        for (Tile pickedTile : this.selectableTiles)
+                        {
+                            pickedTile.setEnabled(false);
+                        }
                     }
                 }
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
         }
     }
-
     public void updatePlayer(String newBlueprint)
     {
-        refreshBlueprint(playerTile, playerBlueprint);
-        refreshBoardViewer(playerTile, playerBlueprint, true);
-        this.fireButton.setEnabled(true);
-        this.fireButton.setText("FIRE!");
-        for(Tile pickedTile : selectableTiles)
+        refreshBlueprint(playerTile, newBlueprint);
+        refreshBoardViewer(playerTile, newBlueprint, true);
+    }
+
+    public boolean lostAllShips(Tile[][] blueprint)
+    {
+        for(Tile[] row : blueprint)
         {
-            pickedTile.setEnabled(true);
+            for(Tile tile : row)
+            {
+                if (tile.state == '1')
+                {
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
     @Override
