@@ -33,6 +33,7 @@ public class PlayActivity extends Activity
     private int playerTurn = 0;
     private Tone tileTargetTone = new Tone(8000, 700, 0.1);
     private Tone fireTargetTone = new Tone(8000, 450, 0.5);
+    private Tone attackedTone = new Tone(8000, 900, 0.25);
     public static PlayActivity current;
 
     @Override
@@ -290,6 +291,7 @@ public class PlayActivity extends Activity
                     if(piece[0].equals("UPDATE"))
                     {
                         //Integer.parseInt(piece[2])) (TURNS)
+                        this.attackedTone.play(soundOn);
                         this.updatePlayer(piece[1]);
                         this.attackPhase();
                     }
